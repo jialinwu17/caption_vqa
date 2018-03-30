@@ -111,14 +111,14 @@ class VQAFeatureDataset(Dataset):
 
         self.dictionary = dictionary
 
-        self.img_id2idx = cPickle.load(
+        self. img_id2idx = cPickle.load(
             open(os.path.join(dataroot, '%s36_imgid2idx.pkl' % name)))
         print('loading features from h5 file')
         h5_path = os.path.join(dataroot, '%s36.hdf5' % name)
         with h5py.File(h5_path, 'r') as hf:
             self.features = np.array(hf.get('image_features'))
             self.spatials = np.array(hf.get('spatial_features'))
-
+            #self.spatials = np.ones(5,2)
         self.entries = _load_dataset(dataroot, name, self.img_id2idx)
 
         self.tokenize()

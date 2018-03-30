@@ -98,7 +98,9 @@ class Att_3(nn.Module):
         v: [batch, k, vdim]
         q: [batch, qdim]
         """
+        #print v.shape, type(v)
         logits = self.logits(v, q)
+        #print v.shape, type(v)
         w = nn.functional.softmax(logits, 1)
         return w
 

@@ -7,14 +7,14 @@ from torch.utils.data import DataLoader
 import torch.nn.init as init
 import numpy as np
 
-from dataset import Dictionary, VQAFeatureDataset
+from VQACAPdataset import Dictionary, VQAFeatureDataset
 from models import build_baseline, build_model_A1, build_model_A2, build_model_A3,build_model_AP,\
     build_model_APD, build_model_APx2, build_model_AP_PC, build_model_P_exact,build_model_P_mod,\
     build_model_A3x2, build_model_A2x2, build_model_A23P, build_model_A3x3, build_model_A2x3, build_model_A3S
 from train import train
 from plot import plot_charts
 import utils
-
+import pickle
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument('--norm', type=str, default='weight', help='weight, batch, layer, none')
     parser.add_argument('--model', type=str, default='A3x2')
     parser.add_argument('--output', type=str, default='saved_models/')
-    parser.add_argument('--batch_size', type=int, default=512)
+    parser.add_argument('--batch_size', type=int, default=6)
     parser.add_argument('--weight_decay', type=float, default=0)
     parser.add_argument('--optimizer', type=str, default='Adamax', help='Adam, Adamax, Adadelta, RMSprop')
     parser.add_argument('--initializer', type=str, default='kaiming_normal')
@@ -78,8 +78,10 @@ if __name__ == '__main__':
             + '_DC' + str(args.dropout_C) + '_w' + str(args.weight_decay) + '_SD' + str(seed) \
             + '_initializer_' + args.initializer
 
-    dictionary = Dictionary.load_from_file('data/dictionary.pkl')
-    train_dset = VQAFeatureDataset('train', dictionary)
+    dictionary = Dictionary.load_from_file('data/dictionary.pkl') # question dictionary
+
+    caption_dictionary = Dictionary.load_from_file('data/caption_dictionary.pkl') 
+    train_dset = VQAFeatureDataset('train', dictionary, caption_dictionary)
 
     if args.model == 'baseline':
         model = build_baseline(train_dset, num_hid=args.num_hid, dropout= args.dropout, norm=args.norm,\
@@ -146,7 +148,8 @@ if __name__ == '__main__':
     else:
         print("Invalid Model")
         sys.exit(0)
-
+    
+    device_ids = [0, 1]
     model = model.cuda()
 
     if args.initializer == 'xavier_normal':
@@ -159,12 +162,13 @@ if __name__ == '__main__':
         model.apply(weights_init_ku)
 
     model.w_emb.init_embedding('data/glove6b_init_300d.npy')
-    model = nn.DataParallel(model).cuda()
-
+    
+    model = nn.DataParallel(model,device_ids = device_ids)
+    #model = model.cuda()
     batch_size = args.batch_size
-    train_loader = DataLoader(train_dset, batch_size, shuffle=True, num_workers=4)
-    eval_dset = VQAFeatureDataset('val', dictionary)
-    eval_loader  = DataLoader(eval_dset, batch_size, shuffle=True, num_workers=4)
+    train_loader = DataLoader(train_dset, batch_size, shuffle=True, num_workers=0)
+    eval_dset = VQAFeatureDataset('val', dictionary, caption_dictionary)
+    eval_loader  = DataLoader(eval_dset, batch_size, shuffle=True, num_workers=0)
 
     train(model, train_loader, eval_loader, args.epochs, output, args.optimizer, args.weight_decay)
     plot_charts(output)
