@@ -154,7 +154,7 @@ class Model_4(nn.Module):
 
         return: logits, not probs
         """
-        print 'haha1'
+        #print 'haha1'
         batch = c.size(0)
         q = q.view(batch * 5, -1)
         c = c.view(batch * 5, -1)
