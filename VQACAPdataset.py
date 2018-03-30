@@ -136,7 +136,7 @@ class VQAFeatureDataset(Dataset):
         self.img_id2idx = cPickle.load(
             open(os.path.join(dataroot, '%s36_imgid2idx.pkl' % name)))
         print('loading features from h5 file')
-        h5_path = os.path.join(dataroot, '%s36.hdf5' % name)
+        h5_path = os.path.join(dataroot, '%s36_ori.hdf5' % name)
         with h5py.File(h5_path, 'r') as hf:
             self.features = np.array(hf.get('image_features'))
             self.spatials = np.array(hf.get('spatial_features'))
@@ -146,10 +146,8 @@ class VQAFeatureDataset(Dataset):
 
 
         #self.entries = _load_dataset(dataroot, name, self.img_id2idx)
-        self.entriess  = cPickle.load(open('VQA_caption_'+name+'dataset.pkl', 'rb'))
-        self.entries = {}
-        for i in xrange(10):
-            self.entries[i] = self.entriess[i]
+        self.entries  = cPickle.load(open('VQA_caption_'+name+'dataset.pkl', 'rb'))
+        
         self.tokenize()
         self.tensorize()
         self.v_dim = self.features.size(2)
@@ -226,8 +224,8 @@ class VQAFeatureDataset(Dataset):
 
     def __getitem__(self, index):
         entry = self.entries[index]
-        features = self.features[np.mod(entry['image'],100)]
-        spatials = self.spatials[np.mod(entry['image'],100)]
+        features = self.features[entry['image']]
+        spatials = self.spatials[entry['image']]
         captions = entry['c_token_tensor']
         
         features = features.unsqueeze(0).repeat(5,1,1)
