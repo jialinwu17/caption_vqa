@@ -177,7 +177,7 @@ class Model_4(nn.Module):
         #print c.shape, type(c)
         v_emb = (att * v).sum(1) # [batch, v_dim]
         #print c.shape, type(c)
-        print 'haha1'
+        #print 'haha1'
         
         q_repr = self.q_net(q_emb) #[batch * 5 ,hid_dim]
         v_repr = self.v_net(v_emb)#[batch *5, hid_dim]
@@ -204,7 +204,7 @@ class Model_4(nn.Module):
 
         pred_ans = F.sigmoid(logits).contiguous()
         pred_rc = F.sigmoid(rc_repr).contiguous()
-        print 'haha2'
+        #print 'haha2'
         
         batch = batch / 5
         
@@ -213,7 +213,7 @@ class Model_4(nn.Module):
 
         caption_from_ans = caption_from_ans.contiguous().view(batch, 1 ,5, 20, -1).repeat(1,5,1,1,1)
         # [batch ,5, 5, 20, caption set ]
-        print 'haha3'
+        #print 'haha3'
         
         similarities_ = (caption_from_ans * (pred_ans.view(batch, 5,1,1,-1).repeat(1, 1, 5, 20, 1))).sum(4)
         # [batch, 5, 5, 20] [i,j] i th answer with j th caption
@@ -224,30 +224,30 @@ class Model_4(nn.Module):
         # [batch, 5 ] 
         indices = indices.view(-1,1 )
             #[batch, 5]
-        print 'haha3.5'
+        #print 'haha3.5'
         target_qc_mask = torch.zeros(batch*5, 5)
-        print target_qc_mask.shape, indices.data.shape
+        #print target_qc_mask.shape, indices.data.shape
         target_qc_mask.scatter_(1, indices.data.type(torch.LongTensor), 1)
-        print 'haha5'
+        #print 'haha5'
         #target_qc_mask = Variable(target_qc_mask.view(batch, 5, 5, 1).repeat(1,1,1,20), volatile=True).cuda()
         target_qc_mask = Variable(target_qc_mask.view(batch, 5, 5, 1).repeat(1,1,1,20).type(torch.LongTensor)).cuda()
         # [b, 5, 5, 20]
-        print 'haha6'
+        #print 'haha6'
 
         target_qc = c.view(batch,1,5,20).repeat(1,5,1,1)
         # [b,5,5, 20]
-        print 'haha7'
+        #print 'haha7'
         target_qc = target_qc * target_qc_mask
-        print 'haha8'
+        #print 'haha8'
         target_qc = target_qc.sum(2).view(-1, 20)
         # []
-        print 'haha9'
+        #print 'haha9'
         qc_w_emb = self.caption_w_emb(target_qc) # [batch * 5, 20 , hid_dim]
-        print 'haha10'
+        #print 'haha10'
         qc_emb = self.question_caption_rnn(v_qc ,qc_w_emb)
-        print 'haha11'
+        #print 'haha11'
         qc_repr = self.caption_decoder(qc_emb)
-        print 'haha12'
+        #print 'haha12'
         pred_qc = F.sigmoid(qc_repr).contiguous()
 
             

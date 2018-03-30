@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument('--norm', type=str, default='weight', help='weight, batch, layer, none')
     parser.add_argument('--model', type=str, default='A3x2')
     parser.add_argument('--output', type=str, default='saved_models/')
-    parser.add_argument('--batch_size', type=int, default=6)
+    parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--weight_decay', type=float, default=0)
     parser.add_argument('--optimizer', type=str, default='Adamax', help='Adam, Adamax, Adadelta, RMSprop')
     parser.add_argument('--initializer', type=str, default='kaiming_normal')
@@ -149,7 +149,7 @@ if __name__ == '__main__':
         print("Invalid Model")
         sys.exit(0)
     
-    device_ids = [0, 1]
+    device_ids = [0, 1,2,3]
     model = model.cuda()
 
     if args.initializer == 'xavier_normal':

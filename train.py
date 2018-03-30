@@ -30,7 +30,7 @@ def train(model, train_loader, eval_loader, num_epochs, output, opt, wd):
     utils.create_dir(output)
     # Paper uses AdaDelta
     
-    device_ids = [0, 1]
+    device_ids = [0, 1,2,3]
     if opt == 'Adadelta':
         optim = torch.optim.Adadelta(model.parameters(), rho=0.95, eps=1e-6, weight_decay=wd)
     elif opt == 'RMSprop':
